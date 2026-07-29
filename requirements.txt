@@ -12,3 +12,4 @@ ftfy
 regex
 huggingface-hub
 safetensors
+streamlit
