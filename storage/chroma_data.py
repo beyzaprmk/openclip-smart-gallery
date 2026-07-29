@@ -1,1 +1,0 @@
-#  ChromaDB'nin kalıcı dosyaları buraya kaydedilecek
