@@ -1,0 +1,14 @@
+open-clip-torch
+torch
+torchvision
+torchaudio
+chromadb
+watchdog
+numpy
+Pillow
+tqdm
+sentencepiece
+ftfy
+regex
+huggingface-hub
+safetensors
