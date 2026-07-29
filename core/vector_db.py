@@ -38,6 +38,22 @@ def save_to_db(image_path: str, embedding: list):
         embeddings=[embedding],
         metadatas=[metadata]
     )
+    
+def delete_from_db(image_path: str):
+    """
+    Silinen fotoğrafın ID'sini bularak vektör veritabanından temizler.
+    """
+    path_obj = Path(image_path)
+    doc_id = str(path_obj.resolve())
+    
+    try:
+        # ID'ye göre veritabanından sil
+        collection.delete(ids=[doc_id])
+        print(f"[VECTOR DB] Temizlik yapıldı: {path_obj.name} veritabanından silindi.")
+    except ValueError:
+        # ChromaDB bazen olmayan bir ID silinmeye çalışıldığında hata fırlatabilir
+        print(f"[VECTOR DB] Uyarı: Silinmek istenen {path_obj.name} zaten veritabanında yok.")
+
 
 def search_in_db(query_embedding: list, n_results: int = 5):
     """
