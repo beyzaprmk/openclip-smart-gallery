@@ -1,0 +1,1 @@
+# OpenCLIP model yükleme ve vektör (embedding) çıkarma
