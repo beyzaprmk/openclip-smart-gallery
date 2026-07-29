@@ -1,2 +1,3 @@
 __pycache__/
 storage/chroma_data/*
+search_test.py

@@ -1,51 +1,75 @@
-# OpenCLIP model yükleme ve vektör (embedding) çıkarma
-
 import torch
 import open_clip
-from PIL import Image
+from PIL import Image, ImageOps
 
-# config.py'dan önceden tanımladığımız donanım ve model ayarlarını çekiyoruz
 from config import CLIP_MODEL_NAME, CLIP_PRETRAINED, DEVICE
 
-print("[ENCODER] OpenCLIP modeli Metal (mps) üzerine yükleniyor. Bu işlem sadece bir kez yapılacaktır...")
+print("[ENCODER] OpenCLIP modeli Metal (mps) üzerine yükleniyor...")
 
-# Modeli ve veri ön işleme (preprocess) fonksiyonunu belleğe al
 model, _, preprocess = open_clip.create_model_and_transforms(
     model_name=CLIP_MODEL_NAME, 
     pretrained=CLIP_PRETRAINED
 )
 
-# Modeli belirtilen cihaza (macOS için 'mps') gönder ve çıkarım (eval) moduna al
 model = model.to(DEVICE)
 model.eval()
 
+tokenizer = open_clip.get_tokenizer(CLIP_MODEL_NAME)
+
+# YENİ EKLENEN KISIM: Fotoğrafı veri kaybı yaşamadan kareye dönüştüren fonksiyon
+def pad_to_square(image):
+    """
+    Fotoğrafın orijinal en-boy oranını bozmadan, eksik kalan kısımları 
+    siyah (0,0,0) ile doldurarak kusursuz bir kare (Letterbox) oluşturur.
+    """
+    width, height = image.size
+    
+    # Eğer fotoğraf zaten kareyse işlem yapma
+    if width == height:
+        return image
+        
+    max_dim = max(width, height)
+    
+    # Siyah arka planlı boş bir kare kanvas oluştur
+    squared_image = Image.new("RGB", (max_dim, max_dim), (0, 0, 0))
+    
+    # Orijinal fotoğrafı bu siyah kanvasın tam merkezine yapıştır
+    paste_x = (max_dim - width) // 2
+    paste_y = (max_dim - height) // 2
+    squared_image.paste(image, (paste_x, paste_y))
+    
+    return squared_image
+
 def encode_image(image_path):
-    """
-    Verilen fotoğrafı okur, OpenCLIP modelinden geçirir 
-    ve 512 boyutlu normalize edilmiş bir vektör (embedding) döndürür.
-    """
+    """Fotoğrafı önce kareye tamamlar, sonra vektöre çevirir."""
     try:
         # 1. Fotoğrafı Aç ve RGB'ye Çevir
-        image = Image.open(image_path).convert("RGB")
+        raw_image = Image.open(image_path).convert("RGB")
         
-        # 2. Ön İşleme (Preprocess)
-        # Görüntüyü 224x224 boyutuna getirir ve PyTorch tensörüne çevirir.
-        image_tensor = preprocess(image).unsqueeze(0).to(DEVICE)
+        # 2. Kırpılmayı engellemek için Padding (Dolgu) uygula
+        padded_image = pad_to_square(raw_image)
         
-        # 3. Çıkarım (Inference)
-        # torch.no_grad() ile gradyan hesaplamasını kapatma.
-        # Bu, bellek tüketimini yarı yarıya düşürür ve işlemi hızlandırır.
+        # 3. Modele gönder (Artık hiçbir piksel kaybolmayacak!)
+        image_tensor = preprocess(padded_image).unsqueeze(0).to(DEVICE)
+        
         with torch.no_grad():
             image_features = model.encode_image(image_tensor)
-            
-            # 4. L2 Optimizasyonu (Kosinüs Benzerliği İçin)
-            # Vektörleri normalize etmek, daha sonra ChromaDB'de yapılacak olan
             image_features /= image_features.norm(dim=-1, keepdim=True)
             
-        # 5. ChromaDB'ye Uygun Formata Çevirme
         return image_features.squeeze(0).cpu().tolist()
         
     except Exception as e:
         print(f"[ENCODER HATA] {image_path} vektörleştirilemedi: {e}")
-        # Hatanın Worker tarafından yakalanması için fırlatıyoruz
+        raise e
+
+def encode_text(search_query: str):
+    """Kullanıcının metnini vektöre çevirir."""
+    try:
+        text_tokens = tokenizer([search_query]).to(DEVICE)
+        with torch.no_grad():
+            text_features = model.encode_text(text_tokens)
+            text_features /= text_features.norm(dim=-1, keepdim=True)
+        return text_features.squeeze(0).cpu().tolist()
+    except Exception as e:
+        print(f"[ENCODER HATA] Metin vektörleştirilemedi: {e}")
         raise e
