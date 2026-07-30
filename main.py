@@ -8,11 +8,14 @@ from pathlib import Path
 from config import WATCH_FOLDER
 from orchestration.worker import ProcessingWorker
 from orchestration.watcher import start_local_watcher
+from core.vector_db import clean_ghost_records
 
 def main():
     print(f"\n{'='*50}")
     print("AKILLI FOTOĞRAF ALBÜMÜ BAŞLATILIYOR...")
     print(f"{'='*50}\n")
+
+    clean_ghost_records()
 
     # 1. Kuyruk ve İşçi (Worker) Başlatma
     # İşçi, kuyruğa düşecek fotoğrafları beklemek üzere arka planda çalışmaya başlar.
