@@ -45,7 +45,7 @@ def sync_existing_images(folder_path, image_queue):
 
 def main():
     print(f"\n{'='*50}")
-    print("🚀 AKILLI FOTOĞRAF ALBÜMÜ BAŞLATILIYOR...")
+    print(" AKILLI FOTOĞRAF ALBÜMÜ BAŞLATILIYOR...")
     print(f"{'='*50}\n")
 
     # 1. DB -> Disk Senkronizasyonu (Önceki oturumdan kalan hayalet verileri temizle)
@@ -67,7 +67,7 @@ def main():
     watcher_thread.start()
 
     # 5. Streamlit Arayüzünü Subprocess Olarak Başlatma
-    print("[SYSTEM] 🌐 Web arayüzü (Streamlit) ayağa kaldırılıyor...")
+    print("[SYSTEM]  Web arayüzü (Streamlit) ayağa kaldırılıyor...")
     
     streamlit_process = subprocess.Popen(
         [sys.executable, "-m", "streamlit", "run", "interface/app.py"],
@@ -75,20 +75,20 @@ def main():
         stderr=subprocess.DEVNULL
     )
 
-    print("\n✅ Sistem başarıyla başlatıldı!")
-    print("👉 Tarayıcınızda şu adrese gidin: http://localhost:8501")
-    print("💡 Sistemi tamamen kapatmak için terminalde 'CTRL + C' tuşlarına basın.\n")
+    print("\n Sistem başarıyla başlatıldı!")
+    print(" Tarayıcınızda şu adrese gidin: http://localhost:8501")
+    print(" Sistemi tamamen kapatmak için terminalde 'CTRL + C' tuşlarına basın.\n")
 
     try:
         while True:
             time.sleep(1)
             
     except KeyboardInterrupt:
-        print("\n\n🛑 Kapatılma sinyali alındı. Tüm sistemler güvenli bir şekilde durduruluyor...")
+        print("\n\n Kapatılma sinyali alındı. Tüm sistemler güvenli bir şekilde durduruluyor...")
         streamlit_process.terminate()
         streamlit_process.wait()
         worker.stop()
-        print("👋 Akıllı Albüm başarıyla kapatıldı. Görüşmek üzere!")
+        print(" Akıllı Albüm başarıyla kapatıldı. Görüşmek üzere!")
 
 if __name__ == "__main__":
     main()
