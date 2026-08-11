@@ -1,112 +1,176 @@
-import time
-import threading
+import socket
 import subprocess
 import sys
-import socket
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from config import WATCH_FOLDER, ALLOWED_EXTENSIONS
+from config import ALLOWED_EXTENSIONS, WATCH_FOLDER
+from graphclip_worker import run_graphclip_scan
+from web_state import publish_event, publish_status, reset_live_results
 
-def main():
-    print(f"\n{'='*50}")
-    print("🚀 AKILLI FOTOĞRAF ALBÜMÜ BAŞLATILIYOR (CLIENT-SERVER MİMARİSİ)...")
-    print(f"{'='*50}\n")
 
-    # 1. LOG GÜRÜLTÜSÜNÜ KESME: stdout ve stderr tamamen susturuldu
-    print("[SYSTEM]  ChromaDB API Sunucusu arka planda ayağa kaldırılıyor...")
-    chroma_process = subprocess.Popen(
+def ask_user_choice() -> str:
+    print("\n" + "=" * 50)
+    print("AKILLI FOTOĞRAF ALBÜMÜ - MODEL SEÇİMİ")
+    print("=" * 50)
+    print("1) OpenCLIP kullan")
+    print("2) GraphCLIP kullan")
+    print("3) İkisini birlikte kullan")
+    choice = input("Seçiminiz [1/2/3]: ").strip()
+    if choice not in {"1", "2", "3"}:
+        print("Geçersiz seçim, 1/2/3 arası değer girin.")
+        return ask_user_choice()
+    return choice
+
+
+def list_images(folder: Path) -> list[Path]:
+    if not folder.exists():
+        return []
+
+    return sorted(
+        [
+            path
+            for path in folder.rglob("*")
+            if path.is_file() and path.suffix.lower() in ALLOWED_EXTENSIONS
+        ],
+        key=lambda path: str(path),
+    )
+
+
+def start_chroma_server() -> subprocess.Popen:
+    print("[SYSTEM] ChromaDB API sunucusu arka planda başlatılıyor...")
+    return subprocess.Popen(
         ["chroma", "run", "--path", "storage/chroma_data", "--host", "127.0.0.1", "--port", "8000"],
         stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL
+        stderr=subprocess.DEVNULL,
     )
-    
-    print("[SYSTEM] Sunucunun uyanması bekleniyor...")
-    
-    server_ready = False
-    for _ in range(20):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(1)
-            if s.connect_ex(('127.0.0.1', 8000)) == 0:
-                server_ready = True
-                break
+
+
+def wait_for_chroma_server(timeout_seconds: int = 20) -> None:
+    print("[SYSTEM] ChromaDB sunucusunun hazır olması bekleniyor...")
+    deadline = time.time() + timeout_seconds
+
+    while time.time() < deadline:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.settimeout(1)
+            if sock.connect_ex(("127.0.0.1", 8000)) == 0:
+                print("[SYSTEM] ChromaDB sunucusu hazır.")
+                return
         time.sleep(1)
-            
-    if not server_ready:
-        print("\n[HATA] ChromaDB sunucusu başlatılamadı veya ulaşılamadı!")
-        chroma_process.terminate()
-        sys.exit(1)
 
-    print("[SYSTEM]  ChromaDB Sunucusu hazır ve dinliyor (Port: 8000)")
+    raise RuntimeError("ChromaDB sunucusu başlatılamadı.")
 
-    # Sunucu uyandıktan sonra modülleri yüklüyoruz
-    from orchestration.worker import ProcessingWorker
-    from orchestration.watcher import start_local_watcher
-    from core.vector_db import clean_ghost_records, collection
-    
-    # 2. HIZLI VE AKILLI SENKRONİZASYON (O(1) Karmaşıklığı)
-    def sync_existing_images(folder_path, image_queue):
-        print("[SYSTEM] Klasördeki mevcut fotoğraflar ve DB karşılaştırılıyor (Hızlı Senkronizasyon)...")
-        folder = Path(folder_path)
-        if not folder.exists(): return
-        
-        # Sadece tek bir HTTP isteği ile veritabanındaki TÜM dosya yollarını (ID'leri) çekiyoruz
-        existing_data = collection.get(include=[])
-        db_paths = set(existing_data['ids']) if existing_data and existing_data['ids'] else set()
-        
-        added_count = 0
-        for file_path in folder.iterdir():
-            if file_path.is_file() and file_path.suffix.lower() in ALLOWED_EXTENSIONS:
-                abs_path = str(file_path.resolve())
-                
-                # Sadece veritabanı kümesinde (set) OLMAYAN yepyeni görseller hesaplanacak
-                if abs_path not in db_paths:
-                    image_queue.put(("ADD", abs_path))
-                    added_count += 1
-                    
-        if added_count > 0:
-            print(f"[SYSTEM] {added_count} adet yeni/işlenmemiş fotoğraf bulundu ve sıraya alındı!")
-        else:
-            print("[SYSTEM] Mükemmel! Tüm fotoğraflar zaten vektörleşmiş durumda. Yeniden hesaplama yapılmayacak.")
 
-    clean_ghost_records()
+def run_openclip_scan(images: list[Path], on_result=None) -> list[dict]:
+    from core.encoder import encode_image
+    from core.vector_db import save_to_db
 
-    worker = ProcessingWorker()
-    worker.start()
+    results: list[dict] = []
+    for image_path in images:
+        embedding = encode_image(str(image_path))
+        save_to_db(str(image_path), embedding)
 
-    sync_existing_images(WATCH_FOLDER, worker.image_queue)
+        payload = {
+            "model": "openclip",
+            "image": str(image_path),
+            "status": "indexed",
+        }
+        results.append(payload)
 
-    watcher_thread = threading.Thread(
-        target=start_local_watcher, 
-        args=(WATCH_FOLDER, worker.image_queue),
-        daemon=True
-    )
-    watcher_thread.start()
+        if on_result is not None:
+            on_result(payload)
 
-    print("[SYSTEM]  Web arayüzü (Streamlit) ayağa kaldırılıyor...")
-    streamlit_process = subprocess.Popen(
+    return results
+
+
+def launch_streamlit() -> subprocess.Popen:
+    print("[SYSTEM] Web arayüzü (Streamlit) başlatılıyor...")
+    return subprocess.Popen(
         [sys.executable, "-m", "streamlit", "run", "interface/app.py"],
         stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL
+        stderr=subprocess.DEVNULL,
     )
 
-    print("\n Sistem başarıyla başlatıldı!")
-    print(" Tarayıcınızda şu adrese gidin: http://localhost:8501")
-    print(" Sistemi tamamen kapatmak için terminalde 'CTRL + C' tuşlarına basın.\n")
+
+def main() -> None:
+    reset_live_results()
+    choice = ask_user_choice()
+    images = list_images(WATCH_FOLDER)
+
+    if not images:
+        print(f"[SYSTEM] {WATCH_FOLDER} içinde işlenecek fotoğraf bulunamadı.")
+        return
+
+    print(f"[SYSTEM] {len(images)} fotoğraf taranacak.")
+
+    chroma_process: subprocess.Popen | None = None
+    streamlit_process: subprocess.Popen | None = None
 
     try:
+        selected_mode = {"1": "openclip", "2": "graphclip", "3": "both"}[choice]
+        publish_status("system", "selected_mode", {"mode": selected_mode})
+
+        if choice in {"1", "3"}:
+            chroma_process = start_chroma_server()
+            wait_for_chroma_server()
+
+        streamlit_process = launch_streamlit()
+
+        if choice == "1":
+            publish_status("openclip", "started", {"image_count": len(images)})
+            run_openclip_scan(images, on_result=lambda payload: publish_event(payload))
+            publish_status("openclip", "done", {"image_count": len(images)})
+
+        elif choice == "2":
+            publish_status("graphclip", "started", {"image_count": len(images)})
+            run_graphclip_scan(WATCH_FOLDER, on_result=lambda payload: publish_event(payload))
+            publish_status("graphclip", "done", {"image_count": len(images)})
+
+        else:
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                futures = {}
+
+                futures[executor.submit(
+                    run_openclip_scan,
+                    images,
+                    lambda payload: publish_event(payload),
+                )] = "openclip"
+
+                futures[executor.submit(
+                    run_graphclip_scan,
+                    WATCH_FOLDER,
+                    "a flower next to a vase",
+                    lambda payload: publish_event(payload),
+                )] = "graphclip"
+
+                for future in as_completed(futures):
+                    model_name = futures[future]
+                    try:
+                        future.result()
+                        publish_status(model_name, "done", {"image_count": len(images)})
+                    except Exception as exc:
+                        publish_status(model_name, "error", {"error": str(exc)})
+
+        print("\nTarama tamamlandı. Web arayüzünü izleyebilirsiniz: http://localhost:8501")
+        print("Sistemi kapatmak için Ctrl+C basın.\n")
+
         while True:
             time.sleep(1)
-            
+
     except KeyboardInterrupt:
-        print("\n\n Kapatılma sinyali alındı. Tüm sistemler güvenli bir şekilde durduruluyor...")
-        streamlit_process.terminate()
-        streamlit_process.wait()
-        
-        chroma_process.terminate()
-        chroma_process.wait()
-        
-        worker.stop()
-        print(" Akıllı Albüm başarıyla kapatıldı")
+        print("\nKapatma sinyali alındı.")
+    except Exception as exc:
+        print(f"\n[HATA] {exc}")
+    finally:
+        if streamlit_process is not None:
+            streamlit_process.terminate()
+            streamlit_process.wait(timeout=5)
+
+        if chroma_process is not None:
+            chroma_process.terminate()
+            chroma_process.wait(timeout=5)
+
 
 if __name__ == "__main__":
     main()

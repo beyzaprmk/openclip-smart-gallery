@@ -1,0 +1,55 @@
+{"model": "system", "status": "selected_mode", "mode": "both"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-08 20.03.05.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-08 20.03.12.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-08 20.03.23.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-08 20.04.50.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-08 20.05.34.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-08 20.05.40.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.06.36.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.06.42.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.06.52.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.06.58.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.07.13.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.07.31.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.07.40.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.07.56.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.00.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.03.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.09.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.22.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.24.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.34.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.43.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.48.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.09.19.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.09.28.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.09.55.png", "status": "indexed"}
+{"model": "openclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.10.10.png", "status": "indexed"}
+{"model": "openclip", "status": "done", "image_count": 26}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-08 20.03.05.png", "similarity": 0.9485441446304321, "status": "result"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-08 20.03.12.png", "similarity": 0.9378963708877563, "status": "result"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-08 20.03.23.png", "similarity": 0.34131425619125366, "status": "result"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-08 20.04.50.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-08 20.05.34.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-08 20.05.40.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.06.36.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.06.42.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.06.52.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.06.58.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.07.13.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.07.31.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.07.40.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.07.56.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.00.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.03.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.09.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.22.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.24.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.34.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.43.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.08.48.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.09.19.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.09.28.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.09.55.png", "status": "skipped"}
+{"model": "graphclip", "image": "/Users/beyzaparmak/Pictures/SmartGallery/Ekran Resmi 2026-08-11 18.10.10.png", "status": "skipped"}
+{"model": "graphclip", "status": "done", "image_count": 26}

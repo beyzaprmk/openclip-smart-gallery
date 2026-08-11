@@ -16,12 +16,8 @@ model.eval()
 
 tokenizer = open_clip.get_tokenizer(CLIP_MODEL_NAME)
 
-# YENİ EKLENEN KISIM: Fotoğrafı veri kaybı yaşamadan kareye dönüştüren fonksiyon
 def pad_to_square(image):
-    """
-    Fotoğrafın orijinal en-boy oranını bozmadan, eksik kalan kısımları 
-    siyah (0,0,0) ile doldurarak kusursuz bir kare (Letterbox) oluşturur.
-    """
+    
     width, height = image.size
     
     # Eğer fotoğraf zaten kareyse işlem yapma
